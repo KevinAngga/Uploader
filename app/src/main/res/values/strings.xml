@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Uploader</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="record_video">Record Video</string>
+    <string name="take_id_card_desc">Please make sure that the photo is inside the frame with clear and readable information.</string>
+    <string name="take_selfie_desc">Please take photo of yourself with your ID Card. Make sure that the photo is inside the frame with clear and readable information. </string>
+    <string name="blank"> </string>
+</resources>
