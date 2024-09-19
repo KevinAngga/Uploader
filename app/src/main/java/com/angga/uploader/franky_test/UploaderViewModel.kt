@@ -2,6 +2,7 @@ package com.angga.uploader.franky_test
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,6 +18,9 @@ data class UploadState(
 class UploaderViewModel() : ViewModel() {
     private val _listUploadState = MutableStateFlow<Map<String, UploadState>>(emptyMap())
     val listUploadState = _listUploadState.asStateFlow()
+
+    // Map to keep track of upload jobs
+    private val uploadJobs = mutableMapOf<String, Job>()
 
     // Function to add a new upload task
     fun addUploadState(indexId: String, imageUri: String) {
@@ -35,7 +39,10 @@ class UploaderViewModel() : ViewModel() {
 
     // Function to start the upload process
     private fun startUpload(indexId: String, imageUri: String) {
-        viewModelScope.launch {
+        // If an upload job already exists for this indexId, cancel it first
+        uploadJobs[indexId]?.cancel()
+
+        val job = viewModelScope.launch {
             var progress = 0f
             // Simulate upload process
             while (progress < 1f) {
@@ -47,6 +54,7 @@ class UploaderViewModel() : ViewModel() {
                 _listUploadState.update {
                     it.toMutableMap().apply {
                         val state = this[indexId]
+
                         if (state != null) {
                             this[indexId] = state.copy(uploadProgress = progress)
                         }
@@ -64,7 +72,9 @@ class UploaderViewModel() : ViewModel() {
 
                 }
             }
-            
         }
+
+        // Store the job in the map
+        uploadJobs[indexId] = job
     }
 }
