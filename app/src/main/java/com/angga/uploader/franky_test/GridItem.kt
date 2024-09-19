@@ -16,30 +16,30 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 
 @Composable
-fun ItemGrid(itemId: Int, navController: NavController) {
+fun ItemGrid(itemId: Int, navController: NavController, uploadState: UploadState?) {
 //    val itemViewModel: ItemViewModel =
 //        koinViewModel(key = itemId.toString()) { parametersOf(itemId) }
 
-    val itemViewModel = navController.currentBackStackEntry!!.koinSharedViewModel<ItemViewModel>(
-        key = itemId.toString(),
-        navController = navController
-    )
+//    val itemViewModel = navController.currentBackStackEntry!!.koinSharedViewModel<ItemViewModel>(
+//        key = itemId.toString(),
+//        navController = navController
+//    )
 
-    // Observe the imageUri StateFlow
-    val imageUri by itemViewModel.imageUri.collectAsStateWithLifecycle()
-
-    // Collect the uploadProgress StateFlow
-    val uploadProgress by itemViewModel.uploadProgress.collectAsStateWithLifecycle()
-
-    val stillUpload by itemViewModel.stillUpload.collectAsStateWithLifecycle()
-
-    LaunchedEffect(key1 = imageUri, key2 = stillUpload) {
-        imageUri?.let { uri ->
-            if (uri.isNotEmpty() && !stillUpload) {
-                itemViewModel.uploadImage()
-            }
-        }
-    }
+//    // Observe the imageUri StateFlow
+//    val imageUri by itemViewModel.imageUri.collectAsStateWithLifecycle()
+//
+//    // Collect the uploadProgress StateFlow
+//    val uploadProgress by itemViewModel.uploadProgress.collectAsStateWithLifecycle()
+//
+//    val stillUpload by itemViewModel.stillUpload.collectAsStateWithLifecycle()
+//
+//    LaunchedEffect(key1 = imageUri, key2 = stillUpload) {
+//        imageUri?.let { uri ->
+//            if (uri.isNotEmpty() && !stillUpload) {
+//                itemViewModel.uploadImage()
+//            }
+//        }
+//    }
 
     Column(
         modifier = Modifier
@@ -49,15 +49,18 @@ fun ItemGrid(itemId: Int, navController: NavController) {
             navController.navigate("cameraX/$itemId")
         })
 
-        if (uploadProgress > 0f && uploadProgress < 1f) {
-            LinearProgressIndicator(
-                progress = { uploadProgress },
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(8.dp),
-                color = Color.Green,
-            )
-            Text(text = "Uploading: ${(uploadProgress * 100).toInt()}%")
+        uploadState?.let { uploadState ->
+            if (uploadState.uploadProgress > 0f && uploadState.uploadProgress < 1f) {
+                LinearProgressIndicator(
+                    progress = { uploadState.uploadProgress },
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .height(8.dp),
+                    color = Color.Green,
+                )
+                Text(text = "Uploading: ${(uploadState.uploadProgress * 100).toInt()}%")
+            }
         }
+
     }
 }

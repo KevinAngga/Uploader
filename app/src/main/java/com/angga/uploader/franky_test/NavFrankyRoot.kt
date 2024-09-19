@@ -3,8 +3,10 @@ package com.angga.uploader.franky_test
 import CameraPreviewScreenRoot
 import CameraUsage
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -24,8 +26,11 @@ fun NavFrankyRoot(navController: NavHostController) {
             route = "upload",
             startDestination = "grid_view"
         ) {
-            composable("grid_view") {
-                GridViewScreen(navController)
+            composable("grid_view") { backStackEntry ->
+                val uploadViewModel = backStackEntry.koinSharedViewModel<UploaderViewModel>(key = null, navController = navController)
+                val list by uploadViewModel.listUploadState.collectAsStateWithLifecycle()
+                println("== grid_view uploadViewModel $uploadViewModel")
+                GridViewScreen(navController, list = list)
             }
 
             composable(
@@ -33,6 +38,10 @@ fun NavFrankyRoot(navController: NavHostController) {
                 arguments = listOf(navArgument("itemId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getInt("itemId") ?: 0
+
+                val uploadViewModel = backStackEntry.koinSharedViewModel<UploaderViewModel>(key = null, navController = navController)
+
+                println("== cameraX uploadViewModel $uploadViewModel")
 
 //                val previousBackStackEntry = remember(backStackEntry) {
 //                    navController.previousBackStackEntry!!
@@ -44,17 +53,17 @@ fun NavFrankyRoot(navController: NavHostController) {
 
 //                //karena kita tahu sebelum ke camera preview, pasti akan ke gridview terlebih dahulu.
 //                // sehingga kita bisa pastikan itemViewModelnya ini akan menggunakan viewmodel yang sama di GridItem
-                val itemViewModel = backStackEntry.koinSharedViewModel<ItemViewModel>(
-                    key = itemId.toString(),
-                    navController = navController
-                )
-                println("itemViewmodel $itemViewModel ${itemViewModel.savedStateHandle}")
+//                val itemViewModel = backStackEntry.koinSharedViewModel<ItemViewModel>(
+//                    key = itemId.toString(),
+//                    navController = navController
+//                )
 
                 CameraPreviewScreenRoot(
                     cameraUsage = CameraUsage.PHOTO,
                     onImageCallback = {
                         println("==== uploader" + it.path.toString())
-                        itemViewModel.savedStateHandle["capturedImageUri"] = it.path.toString()
+                        uploadViewModel.addUploadState(itemId.toString(), it.path.toString())
+//                        itemViewModel.savedStateHandle["capturedImageUri"] = it.path.toString()
                         navController.popBackStack()
                     }
                 )
