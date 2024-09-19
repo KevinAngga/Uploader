@@ -11,11 +11,16 @@ class FileShareViewModel : ViewModel() {
     var state by mutableStateOf(FileShareState())
         private set
 
-
-    fun updateState(uri : Uri) {
+    // Update the URI based on the documentType
+    fun updateState(documentType: String, uri: Uri) {
         state = state.copy(
-            uri = uri
+            uris = state.uris.toMutableMap().apply { put(documentType, uri) }
         )
+    }
+
+    // Retrieve the URI for a specific document type
+    fun getUri(documentType: String): Uri {
+        return state.uris[documentType] ?: Uri.EMPTY
     }
 
 }

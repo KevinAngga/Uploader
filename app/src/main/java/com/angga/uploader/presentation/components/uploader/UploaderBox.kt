@@ -19,7 +19,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,15 +34,25 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.angga.uploader.presentation.CloseIcon
 import com.angga.uploader.presentation.PlusIcon
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.getKoin
+import org.koin.core.parameter.parametersOf
+import org.koin.core.qualifier.named
 
 @Composable
 fun UploaderRoot(
-    uploadViewModel : UploadViewModel = koinViewModel(),
+    documentType: String,
     uri: Uri = Uri.EMPTY,
     title: String = "Add Photo",
     onOpenCamera: () -> Unit,
+    cancelUpload: () -> Unit,
 ) {
+    val koin = getKoin()
+    val scope = remember {
+        koin.getOrCreateScope("upload_scope_${documentType}", named<UploadViewModel>())
+    }
+    val uploadViewModel: UploadViewModel = remember {
+        scope.get { parametersOf(documentType) }
+    }
 
     UploaderBox(
         title = title,
@@ -49,10 +61,20 @@ fun UploaderRoot(
         onOpenCamera = {
             onOpenCamera()
         },
+        cancelUpload = {
+            cancelUpload()
+        },
         onAction = { action ->
             uploadViewModel.onAction(action)
         }
     )
+
+    DisposableEffect(Unit) {
+        println("==== dispose jalan")
+        onDispose {
+            scope.close()
+        }
+    }
 }
 
 @Composable
@@ -60,11 +82,12 @@ fun UploaderBox(
     uri: Uri = Uri.EMPTY,
     title: String = "Add Photo",
     onOpenCamera: () -> Unit,
+    cancelUpload: () -> Unit,
     state: UploaderState,
-    onAction: (UploadAction) -> Unit = {}
+    onAction: (UploadAction) -> Unit = {},
 ) {
     LaunchedEffect(Unit) {
-        if(uri != Uri.EMPTY) {
+        if (uri != Uri.EMPTY) {
             onAction(UploadAction.StartUpload(uri))
         }
     }
@@ -98,6 +121,7 @@ fun UploaderBox(
                         modifier = Modifier
                             .clickable {
                                 onAction(UploadAction.CancelUpload)
+                                cancelUpload()
                             }
                             .align(Alignment.TopEnd)
                             .padding(end = 9.dp, top = 9.dp),

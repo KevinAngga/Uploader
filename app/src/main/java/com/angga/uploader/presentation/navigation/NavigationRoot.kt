@@ -2,6 +2,7 @@ package com.angga.uploader.presentation.navigation
 
 import CameraPreviewScreenRoot
 import UploadIdCardScreenRoot
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
@@ -44,9 +45,14 @@ private fun NavGraphBuilder.uploadScreen(navController: NavHostController) {
                     route = "upload"
                 )
             UploadIdCardScreenRoot(
-                uri = sharedViewModel.state.uri,
+                idCardUri = sharedViewModel.getUri("Uploader 1"),
+                selfieUri = sharedViewModel.getUri("Uploader 2"),
+                cancelUploader = {
+                    sharedViewModel.updateState(documentType = it, uri = Uri.EMPTY)
+                },
                 openUploader = {
-                    navController.navigate("camera")
+                    println("==== documentType "+it)
+                    navController.navigate("cameraX/$it")
                 }
             )
         }
@@ -59,7 +65,8 @@ private fun NavGraphBuilder.cameraGraph(navController: NavHostController) {
         startDestination = "cameraX",
         route = "camera"
     ) {
-        composable("cameraX") { entry ->
+        composable("cameraX/{documentType}") { entry ->
+            val documentType = entry.arguments?.getString("documentType") ?: ""
             val sharedViewModel = entry
                 .sharedViewModel<FileShareViewModel>(
                     viewModelQualifier = named("fileShareViewModel"),
@@ -70,7 +77,7 @@ private fun NavGraphBuilder.cameraGraph(navController: NavHostController) {
             CameraPreviewScreenRoot(
                 cameraUsage = CameraUsage.PHOTO,
                 onImageCallback = {
-                    sharedViewModel.updateState(uri = it)
+                    sharedViewModel.updateState(documentType =  documentType, uri = it)
                     navController.popBackStack()
                 }
             )

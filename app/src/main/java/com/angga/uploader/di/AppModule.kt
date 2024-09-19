@@ -13,6 +13,8 @@ import org.koin.dsl.module
 val appHostModule = module {
     single { CameraDataSource(androidApplication().applicationContext) }
     viewModelOf(::CameraViewModel)
-    viewModelOf(::UploadViewModel)
     viewModel(named("fileShareViewModel")) { FileShareViewModel() }
+    scope<UploadViewModel> {
+        scoped { (documentType: String) -> UploadViewModel(documentType) }
+    }
 }

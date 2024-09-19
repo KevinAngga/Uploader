@@ -129,8 +129,8 @@ class CameraDataSource(
 
         // Save bitmap to file
         return try {
-//            val photoFile = File(context.filesDir, "photo_${System.currentTimeMillis()}.jpg")
-            val photoFile = File(context.filesDir, "photo.jpg")
+            val photoFile = File(context.filesDir, "photo_${System.currentTimeMillis()}.jpg")
+//            val photoFile = File(context.filesDir, "photo.jpg")
             val outputStream = FileOutputStream(photoFile)
 
             // Compress the bitmap into JPEG and save to the file

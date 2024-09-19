@@ -2,8 +2,12 @@
 import android.app.Activity
 import android.net.Uri
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -19,30 +23,53 @@ import com.angga.uploader.presentation.ui.theme.UploaderTheme
 
 @Composable
 fun UploadIdCardScreenRoot(
-    uri: Uri = Uri.EMPTY,
-    openUploader : () -> Unit
+    idCardUri: Uri = Uri.EMPTY,
+    selfieUri : Uri = Uri.EMPTY,
+    openUploader : (documentType : String) -> Unit,
+    cancelUploader : (documentType : String) -> Unit
 ) {
     ChangeStatusBar(useDarkIcon = true)
     UploadIdCardScreen(
-        uri = uri,
-        openUploader = openUploader
+        idCardUri = idCardUri,
+        selfieUri = selfieUri,
+        openUploader = openUploader,
+        cancelUploader = cancelUploader
     )
 }
 
 @Composable
 private fun UploadIdCardScreen(
-    uri: Uri = Uri.EMPTY,
-    openUploader : () -> Unit,
+    idCardUri: Uri = Uri.EMPTY,
+    selfieUri : Uri = Uri.EMPTY,
+    openUploader : (documentType : String) -> Unit,
+    cancelUploader : (documentType : String) -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(24.dp)
     ) {
         UploaderRoot(
-            uri = uri,
+            documentType = "Uploader 1",
+            uri = idCardUri,
             onOpenCamera = {
-                openUploader()
+                openUploader("Uploader 1")
+            },
+            cancelUpload = {
+                cancelUploader("Uploader 1")
+            }
+        )
+
+        Spacer(modifier = Modifier.width(24.dp))
+
+        UploaderRoot(
+            documentType = "Uploader 2",
+            uri = selfieUri,
+            onOpenCamera = {
+                openUploader("Uploader 2")
+            },
+            cancelUpload = {
+                cancelUploader("Uploader 2")
             }
         )
     }
@@ -68,6 +95,7 @@ private fun UploadIdCardScreenPreview() {
     UploaderTheme {
         UploadIdCardScreen(
             openUploader = {},
+            cancelUploader = {}
         )
     }
 }

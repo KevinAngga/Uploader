@@ -5,10 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
-class UploadViewModel : ViewModel() {
+class UploadViewModel(
+    private val documentType : String
+) : ViewModel() {
 
     var state by mutableStateOf(UploaderState())
         private set
+
+    init {
+        println("==== instance "+documentType)
+    }
 
 
     fun onAction(action: UploadAction) {
