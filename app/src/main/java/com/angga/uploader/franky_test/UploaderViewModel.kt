@@ -77,4 +77,21 @@ class UploaderViewModel() : ViewModel() {
         // Store the job in the map
         uploadJobs[indexId] = job
     }
+
+    // Function to cancel an ongoing upload
+    fun cancelUpload(indexId: String) {
+        // Cancel the job associated with this indexId
+        uploadJobs[indexId]?.cancel()
+        uploadJobs.remove(indexId)
+
+        // Update the state to indicate the upload was cancelled
+        _listUploadState.update {
+            it.toMutableMap().apply {
+                val state = this[indexId]
+                if (state != null) {
+                    this[indexId] = state.copy(isUploading = false, uploadProgress = 0f)
+                }
+            }
+        }
+    }
 }
