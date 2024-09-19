@@ -1,6 +1,7 @@
 package com.angga.uploader.di
 
 import CameraViewModel
+import com.angga.uploader.franky_test.ItemViewModel
 import com.angga.uploader.presentation.camera.CameraDataSource
 import com.angga.uploader.presentation.components.uploader.UploadViewModel
 import com.angga.uploader.presentation.file_share.FileShareViewModel
@@ -15,4 +16,6 @@ val appHostModule = module {
     viewModelOf(::CameraViewModel)
     viewModelOf(::UploadViewModel)
     viewModel(named("fileShareViewModel")) { FileShareViewModel() }
+
+    viewModel { ItemViewModel(get()) }
 }
