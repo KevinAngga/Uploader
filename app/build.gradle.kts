@@ -75,6 +75,9 @@ dependencies {
     //camerax
     implementation(libs.bundles.camerax)
 
+    //coil
+    implementation(libs.coil)
+
 
     //navigation
     implementation(libs.androidx.navigation.runtime.ktx)

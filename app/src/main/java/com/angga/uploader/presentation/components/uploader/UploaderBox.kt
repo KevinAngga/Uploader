@@ -1,5 +1,6 @@
-package com.angga.uploader.presentation.components
+package com.angga.uploader.presentation.components.uploader
 
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,21 +19,55 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.angga.uploader.presentation.CloseIcon
 import com.angga.uploader.presentation.PlusIcon
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun UploaderRoot(
+    uploadViewModel : UploadViewModel = koinViewModel(),
+    uri: Uri = Uri.EMPTY,
+    title: String = "Add Photo",
+    onOpenCamera: () -> Unit,
+) {
+
+    UploaderBox(
+        title = title,
+        uri = uri,
+        state = uploadViewModel.state,
+        onOpenCamera = {
+            onOpenCamera()
+        },
+        onAction = { action ->
+            uploadViewModel.onAction(action)
+        }
+    )
+}
 
 @Composable
 fun UploaderBox(
+    uri: Uri = Uri.EMPTY,
     title: String = "Add Photo",
-    canUpload : Boolean = true,
-    isUploading : Boolean = false,
-    onOpenCamera : () -> Unit
+    onOpenCamera: () -> Unit,
+    state: UploaderState,
+    onAction: (UploadAction) -> Unit = {}
 ) {
+    LaunchedEffect(Unit) {
+        if(uri != Uri.EMPTY) {
+            onAction(UploadAction.StartUpload(uri))
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -44,27 +79,46 @@ fun UploaderBox(
             .background(Color.Transparent)
             .clip(RoundedCornerShape(8.dp))
     ) {
-        if (isUploading) {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-//                Image(
-//                    painter = painterResource(id = R.drawable.host_bg_image),
-//                    contentDescription = null,
-//                    contentScale = ContentScale.Crop,
-//                    modifier = Modifier.fillMaxSize()
-//                )
-
-
-                CircularProgressIndicator(
+        if (!state.canUpload) {
+            if (state.uri != Uri.EMPTY) {
+                Box(
                     modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.Center),
-                )
+                        .fillMaxSize()
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(state.uri)
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    Icon(
+                        modifier = Modifier
+                            .clickable {
+                                onAction(UploadAction.CancelUpload)
+                            }
+                            .align(Alignment.TopEnd)
+                            .padding(end = 9.dp, top = 9.dp),
+                        imageVector = CloseIcon,
+                        tint = Color.Unspecified,
+                        contentDescription = null
+                    )
+
+                    if (state.isUploading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.Center),
+                            color = Color.Gray
+                        )
+                    }
+                }
             }
         }
 
-        if (canUpload) {
+        if (state.canUpload) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -77,6 +131,7 @@ fun UploaderBox(
                 Icon(
                     imageVector = PlusIcon,
                     contentDescription = null,
+                    tint = Color.Gray
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -85,6 +140,7 @@ fun UploaderBox(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 14.sp,
+                    color = Color.Gray
                 )
             }
         }
