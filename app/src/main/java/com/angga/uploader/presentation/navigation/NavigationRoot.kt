@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import com.angga.uploader.presentation.file_share.FileShareViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.qualifier.Qualifier
@@ -24,35 +25,52 @@ fun NavigationRoot(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "upload"
+        startDestination = SubGraph.Uploader
     ) {
+
         uploadScreen(navController)
         cameraGraph(navController)
+
+//        composable<Destinations.CameraX> { entry ->
+//            val argument = entry.toRoute<Destinations.CameraX>()
+//            val documentType = argument.documentType
+//            CameraPreviewScreenRoot(
+//                cameraUsage = CameraUsage.PHOTO,
+//                onImageCallback = {
+//                    sharedViewModel.updateState(documentType =  documentType, uri = it)
+//                    navController.popBackStack()
+//                }
+//            )
+//        }
     }
 }
 
 
 private fun NavGraphBuilder.uploadScreen(navController: NavHostController) {
-    navigation(
-        startDestination = "upload_screen",
-        route = "upload"
+    navigation<SubGraph.Uploader>(
+        startDestination = Destination.UploadIdCard,
     ) {
-        composable("upload_screen") { entry ->
-            val sharedViewModel = entry
-                .sharedViewModel<FileShareViewModel>(
-                    viewModelQualifier = named("fileShareViewModel"),
-                    navController = navController,
-                    route = "upload"
-                )
+        composable<Destination.UploadIdCard> { entry ->
+//            val sharedViewModel = entry
+//                .sharedViewModel<FileShareViewModel>(
+//                    viewModelQualifier = named("fileShareViewModel"),
+//                    navController = navController,
+//                    route = SubGraph.Uploader::class.qualifiedName
+//                )
+
             UploadIdCardScreenRoot(
-                idCardUri = sharedViewModel.getUri("Uploader 1"),
-                selfieUri = sharedViewModel.getUri("Uploader 2"),
+                idCardUri = Uri.EMPTY,
+                selfieUri = Uri.EMPTY,
                 cancelUploader = {
-                    sharedViewModel.updateState(documentType = it, uri = Uri.EMPTY)
+//                    sharedViewModel.updateState(documentType = it, uri = Uri.EMPTY)
                 },
                 openUploader = {
                     println("==== documentType "+it)
-                    navController.navigate("cameraX/$it")
+                    navController.navigate(
+                        Destination.CameraX(
+                            documentType = it
+                        )
+                    )
                 }
             )
         }
@@ -61,23 +79,23 @@ private fun NavGraphBuilder.uploadScreen(navController: NavHostController) {
 
 
 private fun NavGraphBuilder.cameraGraph(navController: NavHostController) {
-    navigation(
-        startDestination = "cameraX",
-        route = "camera"
+    navigation<SubGraph.Camera>(
+        startDestination = Destination.CameraX,
     ) {
-        composable("cameraX/{documentType}") { entry ->
-            val documentType = entry.arguments?.getString("documentType") ?: ""
-            val sharedViewModel = entry
-                .sharedViewModel<FileShareViewModel>(
-                    viewModelQualifier = named("fileShareViewModel"),
-                    navController = navController,
-                    route = "upload"
-                )
+        composable<Destination.CameraX> { entry ->
+            val argument = entry.toRoute<Destination.CameraX>()
+            val documentType = "Uploader 1"
+//            val sharedViewModel = entry
+//                .sharedViewModel<FileShareViewModel>(
+//                    viewModelQualifier = named("fileShareViewModel"),
+//                    navController = navController,
+//                    route = SubGraph.Uploader::class.qualifiedName
+//                )
 
             CameraPreviewScreenRoot(
                 cameraUsage = CameraUsage.PHOTO,
                 onImageCallback = {
-                    sharedViewModel.updateState(documentType =  documentType, uri = it)
+//                    sharedViewModel.updateState(documentType =  documentType, uri = it)
                     navController.popBackStack()
                 }
             )

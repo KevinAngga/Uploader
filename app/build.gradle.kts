@@ -78,6 +78,9 @@ dependencies {
     //coil
     implementation(libs.coil)
 
+    //kotlinX Serialization
+    implementation(libs.kotlinx.serialization.json)
+
 
     //navigation
     implementation(libs.androidx.navigation.runtime.ktx)

@@ -8,11 +8,16 @@ import androidx.lifecycle.ViewModel
 
 class FileShareViewModel : ViewModel() {
 
+    init {
+        println("==== ter init")
+    }
+
     var state by mutableStateOf(FileShareState())
         private set
 
     // Update the URI based on the documentType
     fun updateState(documentType: String, uri: Uri) {
+        println("===== fileshare "+uri.path.toString())
         state = state.copy(
             uris = state.uris.toMutableMap().apply { put(documentType, uri) }
         )
