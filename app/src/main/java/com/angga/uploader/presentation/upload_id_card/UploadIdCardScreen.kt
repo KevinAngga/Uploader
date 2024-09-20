@@ -34,7 +34,7 @@ import org.koin.androidx.compose.koinViewModel
 fun UploadIdCardScreenRoot(
     viewModel: UploadIdCardViewModel = koinViewModel(),
     map : Map<String, UploaderState> = emptyMap(),
-    openUploader : (documentType : String) -> Unit,
+    openUploader : (documentType : String, cameraUsage : CameraUsage) -> Unit,
     cancelUploader : (documentType : String) -> Unit,
 ) {
     val context = LocalContext.current
@@ -67,7 +67,7 @@ fun UploadIdCardScreenRoot(
 @Composable
 private fun UploadIdCardScreen(
     map : Map<String, UploaderState> = emptyMap(),
-    openUploader : (documentType : String) -> Unit,
+    openUploader : (documentType : String, cameraUsage : CameraUsage) -> Unit,
     cancelUploader : (documentType : String) -> Unit,
     onAction : (UploadIdCardAction) -> Unit
 ) {
@@ -85,7 +85,7 @@ private fun UploadIdCardScreen(
                 documentType = "Uploader 1",
                 state = map.getOrDefault("Uploader 1", UploaderState()),
                 onOpenCamera = {
-                    openUploader("Uploader 1")
+                    openUploader("Uploader 1", CameraUsage.SELFIE)
                 },
                 cancelUpload = {
                     cancelUploader("Uploader 1")
@@ -103,7 +103,7 @@ private fun UploadIdCardScreen(
                 documentType = "Uploader 2",
                 state = map.getOrDefault("Uploader 2", UploaderState()),
                 onOpenCamera = {
-                    openUploader("Uploader 2")
+                    openUploader("Uploader 2", CameraUsage.PHOTO)
                 },
                 cancelUpload = {
                     cancelUploader("Uploader 2")
@@ -143,7 +143,7 @@ fun ChangeStatusBar(useDarkIcon : Boolean) {
 private fun UploadIdCardScreenPreview() {
     UploaderTheme {
         UploadIdCardScreen(
-            openUploader = {},
+            openUploader = { documentType, cameraUsage -> },
             cancelUploader = {},
             onAction = {}
         )

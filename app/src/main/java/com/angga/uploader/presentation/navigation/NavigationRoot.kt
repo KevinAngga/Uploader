@@ -17,6 +17,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
@@ -28,6 +29,7 @@ import org.koin.core.parameter.ParametersHolder
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.Qualifier
 import org.koin.core.qualifier.named
+import kotlin.reflect.typeOf
 
 
 @Composable
@@ -81,10 +83,11 @@ private fun NavGraphBuilder.uploadScreen(navController: NavHostController) {
                 cancelUploader = {
                     uploadViewModel.cancelUpload(it)
                 },
-                openUploader = {
+                openUploader = { documentType, cameraUsage ->
                     navController.navigate(
                         Destination.CameraX(
-                            documentType = it
+                            documentType = documentType,
+                            cameraUsage = cameraUsage
                         )
                     )
                 }
@@ -98,9 +101,14 @@ private fun NavGraphBuilder.cameraGraph(navController: NavHostController) {
     navigation<SubGraph.Camera>(
         startDestination = Destination.CameraX::class,
     ) {
-        composable<Destination.CameraX> { entry ->
+        composable<Destination.CameraX>(
+            typeMap = mapOf(
+                typeOf<CameraUsage>() to NavType.EnumType(CameraUsage::class.java)
+            )
+        ) { entry ->
             val argument = entry.toRoute<Destination.CameraX>()
             val documentType = argument.documentType
+            val cameraUsage = argument.cameraUsage
 
             val uploadViewModel = entry
                 .sharedViewModel<UploadViewModel>(
@@ -110,7 +118,7 @@ private fun NavGraphBuilder.cameraGraph(navController: NavHostController) {
                 )
 
             CameraPreviewScreenRoot(
-                cameraUsage = CameraUsage.PHOTO,
+                cameraUsage = cameraUsage,
                 onImageCallback = {
                     uploadViewModel.addUploadState(documentType =  documentType, imageUri = it)
                     navController.popBackStack()

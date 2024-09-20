@@ -1,5 +1,6 @@
 package com.angga.uploader.presentation.navigation
 
+import CameraUsage
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -24,6 +25,7 @@ sealed class Destination {
 
     @Serializable
     data class CameraX (
-        val documentType : String
+        val documentType : String,
+        val cameraUsage: CameraUsage,
     ): Destination()
 }
