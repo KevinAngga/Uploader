@@ -1,10 +1,8 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 import android.app.Activity
 import android.net.Uri
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -19,19 +17,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.angga.uploader.presentation.components.uploader.UploaderRoot
+import com.angga.uploader.presentation.components.uploader.UploaderState
 import com.angga.uploader.presentation.ui.theme.UploaderTheme
 
 @Composable
 fun UploadIdCardScreenRoot(
-    idCardUri: Uri = Uri.EMPTY,
-    selfieUri : Uri = Uri.EMPTY,
+    map : Map<String, UploaderState> = emptyMap(),
     openUploader : (documentType : String) -> Unit,
     cancelUploader : (documentType : String) -> Unit
 ) {
     ChangeStatusBar(useDarkIcon = true)
     UploadIdCardScreen(
-        idCardUri = idCardUri,
-        selfieUri = selfieUri,
+        map = map,
         openUploader = openUploader,
         cancelUploader = cancelUploader
     )
@@ -39,8 +36,7 @@ fun UploadIdCardScreenRoot(
 
 @Composable
 private fun UploadIdCardScreen(
-    idCardUri: Uri = Uri.EMPTY,
-    selfieUri : Uri = Uri.EMPTY,
+    map : Map<String, UploaderState> = emptyMap(),
     openUploader : (documentType : String) -> Unit,
     cancelUploader : (documentType : String) -> Unit
 ) {
@@ -49,9 +45,10 @@ private fun UploadIdCardScreen(
             .fillMaxWidth()
             .padding(24.dp)
     ) {
+        println("state "+map.getOrDefault("Uploader 1", UploaderState()).uri.path.toString())
         UploaderRoot(
             documentType = "Uploader 1",
-            uri = idCardUri,
+            state = map.getOrDefault("Uploader 1", UploaderState()),
             onOpenCamera = {
                 openUploader("Uploader 1")
             },
@@ -64,7 +61,7 @@ private fun UploadIdCardScreen(
 
         UploaderRoot(
             documentType = "Uploader 2",
-            uri = selfieUri,
+            state = map.getOrDefault("Uploader 2", UploaderState()),
             onOpenCamera = {
                 openUploader("Uploader 2")
             },

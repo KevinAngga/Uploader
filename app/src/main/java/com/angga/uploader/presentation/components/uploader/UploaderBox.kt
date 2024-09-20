@@ -41,23 +41,22 @@ import org.koin.core.qualifier.named
 @Composable
 fun UploaderRoot(
     documentType: String,
-    uri: Uri = Uri.EMPTY,
+    state: UploaderState,
     title: String = "Add Photo",
     onOpenCamera: () -> Unit,
     cancelUpload: () -> Unit,
 ) {
-    val koin = getKoin()
-    val scope = remember {
-        koin.getOrCreateScope("upload_scope_${documentType}", named<UploadViewModel>())
-    }
-    val uploadViewModel: UploadViewModel = remember {
-        scope.get { parametersOf(documentType) }
-    }
+//    val koin = getKoin()
+//    val scope = remember {
+//        koin.getOrCreateScope("upload_scope_${documentType}", named<UploadViewModel>())
+//    }
+//    val uploadViewModel: UploadViewModel = remember {
+//        scope.get { parametersOf(documentType) }
+//    }
 
     UploaderBox(
         title = title,
-        uri = uri,
-        state = uploadViewModel.state,
+        state = state,
         onOpenCamera = {
             onOpenCamera()
         },
@@ -65,16 +64,16 @@ fun UploaderRoot(
             cancelUpload()
         },
         onAction = { action ->
-            uploadViewModel.onAction(action)
+//            uploadViewModel.onAction(action)
         }
     )
 
-    DisposableEffect(Unit) {
-        println("==== dispose jalan")
-        onDispose {
-            scope.close()
-        }
-    }
+//    DisposableEffect(Unit) {
+//        println("==== dispose jalan")
+//        onDispose {
+//            scope.close()
+//        }
+//    }
 }
 
 @Composable
@@ -87,9 +86,7 @@ fun UploaderBox(
     onAction: (UploadAction) -> Unit = {},
 ) {
     LaunchedEffect(Unit) {
-        if (uri != Uri.EMPTY) {
-            onAction(UploadAction.StartUpload(uri))
-        }
+        println("==== uplodaer box "+state.uri.path.toString())
     }
 
     Box(
