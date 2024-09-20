@@ -82,7 +82,6 @@ private fun NavGraphBuilder.uploadScreen(navController: NavHostController) {
                     uploadViewModel.cancelUpload(it)
                 },
                 openUploader = {
-                    println("==== documentType "+it)
                     navController.navigate(
                         Destination.CameraX(
                             documentType = it

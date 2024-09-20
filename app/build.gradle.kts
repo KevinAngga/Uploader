@@ -82,6 +82,10 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
 
+    //ktor
+    implementation(libs.bundles.ktor)
+
+
     //navigation
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.navigation.compose)
