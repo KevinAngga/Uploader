@@ -28,4 +28,7 @@ sealed class Destination {
         val documentType : String,
         val cameraUsage: CameraUsage,
     ): Destination()
+
+    @Serializable
+    data object AfterUpload : Destination()
 }

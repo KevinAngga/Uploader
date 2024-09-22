@@ -90,8 +90,19 @@ private fun NavGraphBuilder.uploadScreen(navController: NavHostController) {
                             cameraUsage = cameraUsage
                         )
                     )
+                },
+                goToNext = {
+                    navController.navigate(Destination.AfterUpload)
                 }
             )
+        }
+
+        composable<Destination.AfterUpload> {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(text = "Click Me")
+            }
         }
     }
 }

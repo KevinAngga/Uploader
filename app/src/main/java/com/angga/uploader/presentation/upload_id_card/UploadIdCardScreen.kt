@@ -36,6 +36,7 @@ fun UploadIdCardScreenRoot(
     map : Map<String, UploaderState> = emptyMap(),
     openUploader : (documentType : String, cameraUsage : CameraUsage) -> Unit,
     cancelUploader : (documentType : String) -> Unit,
+    goToNext : () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -44,11 +45,7 @@ fun UploadIdCardScreenRoot(
     ObserveAsEvents(flow = viewModel.event) { event ->
         when(event) {
             UploadIdCardEvent.GoToNext -> {
-                Toast.makeText(
-                    context,
-                    "Sementara pake toast",
-                    Toast.LENGTH_LONG
-                ).show()
+                goToNext()
             }
         }
 
