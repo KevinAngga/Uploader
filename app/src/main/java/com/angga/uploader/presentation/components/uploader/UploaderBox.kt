@@ -1,6 +1,8 @@
 package com.angga.uploader.presentation.components.uploader
 
+import CameraUsage
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,7 +31,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.decode.VideoFrameDecoder
 import coil.request.ImageRequest
+import coil.size.Size
 import com.angga.uploader.presentation.CloseIcon
 import com.angga.uploader.presentation.PlusIcon
 
@@ -37,13 +41,13 @@ import com.angga.uploader.presentation.PlusIcon
 @Composable
 fun UploaderRoot(
     documentType: String,
+    cameraUsage: CameraUsage = CameraUsage.PHOTO,
     state: UploaderState,
     title: String = "Add Photo",
     onOpenCamera: () -> Unit,
     cancelUpload: () -> Unit,
-    onUploadFinish : (documentType: String, uploadFinish : Boolean) -> Unit
+    onUploadFinish: (documentType: String, uploadFinish: Boolean) -> Unit,
 ) {
-
     LaunchedEffect(state.uploadFinish) {
         if (state.uploadFinish) {
             onUploadFinish(documentType, true)
@@ -55,6 +59,7 @@ fun UploaderRoot(
     UploaderBox(
         title = title,
         state = state,
+        cameraUsage = cameraUsage,
         onOpenCamera = {
             onOpenCamera()
         },
@@ -69,7 +74,8 @@ fun UploaderBox(
     title: String = "Add Photo",
     onOpenCamera: () -> Unit,
     cancelUpload: () -> Unit,
-    state: UploaderState
+    state: UploaderState,
+    cameraUsage: CameraUsage = CameraUsage.PHOTO,
 ) {
     Box(
         modifier = Modifier
@@ -88,9 +94,18 @@ fun UploaderBox(
                         .fillMaxSize()
                 ) {
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(state.uri)
-                            .build(),
+                        model = if (cameraUsage == CameraUsage.RECORD) {
+                            ImageRequest.Builder(LocalContext.current)
+                                .data(state.uri)
+                                .decoderFactory(VideoFrameDecoder.Factory())
+                                .size(100, 100)
+                                .build()
+                        }
+                        else {
+                            ImageRequest.Builder(LocalContext.current)
+                                .data(state.uri)
+                                .build()
+                        },
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()

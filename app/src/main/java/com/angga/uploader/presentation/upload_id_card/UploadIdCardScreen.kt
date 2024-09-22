@@ -38,8 +38,6 @@ fun UploadIdCardScreenRoot(
     cancelUploader : (documentType : String) -> Unit,
     goToNext : () -> Unit,
 ) {
-    val context = LocalContext.current
-
     ChangeStatusBar(useDarkIcon = true)
 
     ObserveAsEvents(flow = viewModel.event) { event ->
@@ -107,6 +105,25 @@ private fun UploadIdCardScreen(
                 },
                 onUploadFinish = { documentType, uploadFinish ->
                     if (documentType == "Uploader 2") {
+                        onAction(UploadIdCardAction.onSelfieUploadSuccess(uploadFinish))
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.width(24.dp))
+
+            UploaderRoot(
+                documentType = "Uploader 3",
+                cameraUsage = CameraUsage.RECORD,
+                state = map.getOrDefault("Uploader 3", UploaderState()),
+                onOpenCamera = {
+                    openUploader("Uploader 3", CameraUsage.RECORD)
+                },
+                cancelUpload = {
+                    cancelUploader("Uploader 3")
+                },
+                onUploadFinish = { documentType, uploadFinish ->
+                    if (documentType == "Uploader 3") {
                         onAction(UploadIdCardAction.onSelfieUploadSuccess(uploadFinish))
                     }
                 }

@@ -77,6 +77,7 @@ dependencies {
 
     //coil
     implementation(libs.coil)
+    implementation(libs.coil.video)
 
     //kotlinX Serialization
     implementation(libs.kotlinx.serialization.json)
