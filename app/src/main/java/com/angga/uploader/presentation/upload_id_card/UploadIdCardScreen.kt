@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
+
 import android.app.Activity
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +16,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,15 +32,16 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun UploadIdCardScreenRoot(
     viewModel: UploadIdCardViewModel = koinViewModel(),
-    map : Map<String, UploaderState> = emptyMap(),
-    openUploader : (documentType : String, cameraUsage : CameraUsage) -> Unit,
-    cancelUploader : (documentType : String) -> Unit,
-    goToNext : () -> Unit,
+    map: Map<String, UploaderState> = emptyMap(),
+    openUploader: (documentType: String, cameraUsage: CameraUsage) -> Unit,
+    retryUploader: (documentType: String) -> Unit,
+    cancelUploader: (documentType: String) -> Unit,
+    goToNext: () -> Unit,
 ) {
     ChangeStatusBar(useDarkIcon = true)
 
     ObserveAsEvents(flow = viewModel.event) { event ->
-        when(event) {
+        when (event) {
             UploadIdCardEvent.GoToNext -> {
                 goToNext()
             }
@@ -53,6 +53,7 @@ fun UploadIdCardScreenRoot(
         map = map,
         openUploader = openUploader,
         cancelUploader = cancelUploader,
+        retryUpload = retryUploader,
         onAction = { action ->
             viewModel.onAction(action)
         }
@@ -61,10 +62,11 @@ fun UploadIdCardScreenRoot(
 
 @Composable
 private fun UploadIdCardScreen(
-    map : Map<String, UploaderState> = emptyMap(),
-    openUploader : (documentType : String, cameraUsage : CameraUsage) -> Unit,
-    cancelUploader : (documentType : String) -> Unit,
-    onAction : (UploadIdCardAction) -> Unit
+    map: Map<String, UploaderState> = emptyMap(),
+    openUploader: (documentType: String, cameraUsage: CameraUsage) -> Unit,
+    retryUpload: (documentType: String) -> Unit,
+    cancelUploader: (documentType: String) -> Unit,
+    onAction: (UploadIdCardAction) -> Unit,
 ) {
 
     Column(
@@ -81,6 +83,9 @@ private fun UploadIdCardScreen(
                 state = map.getOrDefault("Uploader 1", UploaderState()),
                 onOpenCamera = {
                     openUploader("Uploader 1", CameraUsage.SELFIE)
+                },
+                retryUpload = {
+                    retryUpload("Uploader 1")
                 },
                 cancelUpload = {
                     cancelUploader("Uploader 1")
@@ -100,6 +105,9 @@ private fun UploadIdCardScreen(
                 onOpenCamera = {
                     openUploader("Uploader 2", CameraUsage.PHOTO)
                 },
+                retryUpload = {
+                    retryUpload("Uploader 2")
+                },
                 cancelUpload = {
                     cancelUploader("Uploader 2")
                 },
@@ -118,6 +126,9 @@ private fun UploadIdCardScreen(
                 state = map.getOrDefault("Uploader 3", UploaderState()),
                 onOpenCamera = {
                     openUploader("Uploader 3", CameraUsage.RECORD)
+                },
+                retryUpload = {
+                    retryUpload("Uploader 3")
                 },
                 cancelUpload = {
                     cancelUploader("Uploader 3")
@@ -139,15 +150,16 @@ private fun UploadIdCardScreen(
 }
 
 @Composable
-fun ChangeStatusBar(useDarkIcon : Boolean) {
+fun ChangeStatusBar(useDarkIcon: Boolean) {
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
             window.navigationBarColor = Color.Transparent.toArgb()
-            window.statusBarColor =  Color.Transparent.toArgb()
+            window.statusBarColor = Color.Transparent.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = useDarkIcon
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = useDarkIcon
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars =
+                useDarkIcon
         }
     }
 }
@@ -159,6 +171,7 @@ private fun UploadIdCardScreenPreview() {
         UploadIdCardScreen(
             openUploader = { documentType, cameraUsage -> },
             cancelUploader = {},
+            retryUpload = { },
             onAction = {}
         )
     }

@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.angga.uploader.domain.UploadRepository
-import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +13,6 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
-import java.io.FileNotFoundException
 import java.util.concurrent.CancellationException
 
 class UploadViewModel(
@@ -28,9 +26,9 @@ class UploadViewModel(
     // Map to keep track of upload jobs
     private val uploadJobs = mutableMapOf<String, Job>()
 
-    fun addUploadState(documentType: String, imageUri: Uri) {
+    fun addUploadState(documentType: String, contentUri: Uri) {
         // Create a new UploadState
-        val newUploadState = UploaderState(uri = imageUri, isUploading = false, canUpload = false)
+        val newUploadState = UploaderState(uri = contentUri, isUploading = false, canUpload = false)
         // Add the new upload task to the list
         _listUploadState.update { currentMap ->
             currentMap.toMutableMap().apply {
@@ -39,7 +37,7 @@ class UploadViewModel(
         }
 
         // Start the upload process
-        startUpload(documentType, imageUri)
+        startUpload(documentType, contentUri)
     }
 
     // Function to cancel an ongoing upload
@@ -61,6 +59,24 @@ class UploadViewModel(
                     )
                 }
             }
+        }
+    }
+
+    fun retryUpload(documentType: String) {
+        _listUploadState.update {
+            it.toMutableMap().apply {
+                val state = this[documentType]
+                if (state != null) {
+                    this[documentType] = state.copy(
+                        uploadError = false,
+                    )
+                }
+            }
+        }
+
+        val currentState = _listUploadState.value[documentType]
+        if (currentState != null) {
+            startUpload(documentType =  documentType, currentState.uri)
         }
     }
 
@@ -115,14 +131,19 @@ class UploadViewModel(
                     }
                 }
             }
-        }.catch { cause ->
-            val message = when(cause) {
-                is OutOfMemoryError -> "File too large!"
-                is FileNotFoundException -> "File not found!"
-                is UnresolvedAddressException -> "No internet!"
-                else -> "Something went wrong!"
+        }.catch {
+            _listUploadState.update {
+                it.toMutableMap().apply {
+                    val state = this[documentType]
+                    if (state != null) {
+                        this[documentType] = state.copy(
+                            isUploading = false,
+                            uploadError = true,
+                            uploadFinish = false
+                        )
+                    }
+                }
             }
-            println("=== upload error "+message)
         }.launchIn(viewModelScope)
 
         uploadJobs[documentType] = job

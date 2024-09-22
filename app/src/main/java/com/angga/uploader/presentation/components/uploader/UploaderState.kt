@@ -7,4 +7,5 @@ data class UploaderState(
     val canUpload : Boolean = true,
     val isUploading : Boolean = false,
     val uploadFinish : Boolean = false,
+    val uploadError : Boolean = false
 )

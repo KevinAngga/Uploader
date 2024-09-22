@@ -55,9 +55,9 @@ private fun NavGraphBuilder.mainScreen(navController: NavHostController) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 Button(
-                    onClick = {  navController.navigate(SubGraph.Uploader) }
+                    onClick = { navController.navigate(SubGraph.Uploader) }
                 ) {
-                   Text(text = "Click Me")
+                    Text(text = "Click Me")
                 }
             }
         }
@@ -90,6 +90,9 @@ private fun NavGraphBuilder.uploadScreen(navController: NavHostController) {
                             cameraUsage = cameraUsage
                         )
                     )
+                },
+                retryUploader = {
+                    uploadViewModel.retryUpload(it)
                 },
                 goToNext = {
                     navController.navigate(Destination.AfterUpload)
@@ -131,7 +134,7 @@ private fun NavGraphBuilder.cameraGraph(navController: NavHostController) {
             CameraPreviewScreenRoot(
                 cameraUsage = cameraUsage,
                 onImageCallback = {
-                    uploadViewModel.addUploadState(documentType =  documentType, imageUri = it)
+                    uploadViewModel.addUploadState(documentType = documentType, contentUri = it)
                     navController.popBackStack()
                 }
             )
@@ -143,7 +146,7 @@ private fun NavGraphBuilder.cameraGraph(navController: NavHostController) {
 inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(
     viewModelQualifier: Qualifier,
     navController: NavHostController,
-    route : String? = null
+    route: String? = null,
 ): T {
     val navGraphRoute = destination.parent?.route ?: return koinViewModel(viewModelQualifier)
     val parentEntry = remember(this) {

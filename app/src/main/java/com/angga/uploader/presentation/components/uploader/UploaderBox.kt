@@ -2,7 +2,6 @@ package com.angga.uploader.presentation.components.uploader
 
 import CameraUsage
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,9 +32,9 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.decode.VideoFrameDecoder
 import coil.request.ImageRequest
-import coil.size.Size
 import com.angga.uploader.presentation.CloseIcon
 import com.angga.uploader.presentation.PlusIcon
+import com.angga.uploader.presentation.RetryIcon
 
 
 @Composable
@@ -45,6 +44,7 @@ fun UploaderRoot(
     state: UploaderState,
     title: String = "Add Photo",
     onOpenCamera: () -> Unit,
+    retryUpload: () -> Unit,
     cancelUpload: () -> Unit,
     onUploadFinish: (documentType: String, uploadFinish: Boolean) -> Unit,
 ) {
@@ -63,6 +63,9 @@ fun UploaderRoot(
         onOpenCamera = {
             onOpenCamera()
         },
+        retryUpload = {
+            retryUpload()
+        },
         cancelUpload = {
             cancelUpload()
         }
@@ -74,6 +77,7 @@ fun UploaderBox(
     title: String = "Add Photo",
     onOpenCamera: () -> Unit,
     cancelUpload: () -> Unit,
+    retryUpload: () -> Unit,
     state: UploaderState,
     cameraUsage: CameraUsage = CameraUsage.PHOTO,
 ) {
@@ -100,8 +104,7 @@ fun UploaderBox(
                                 .decoderFactory(VideoFrameDecoder.Factory())
                                 .size(100, 100)
                                 .build()
-                        }
-                        else {
+                        } else {
                             ImageRequest.Builder(LocalContext.current)
                                 .data(state.uri)
                                 .build()
@@ -158,6 +161,34 @@ fun UploaderBox(
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 14.sp,
                     color = Color.Gray
+                )
+            }
+        }
+
+        if (state.uploadError) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Gray)
+                    .clickable {
+                        retryUpload()
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = RetryIcon,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Upload Failed",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 14.sp,
+                    color = Color.Red
                 )
             }
         }

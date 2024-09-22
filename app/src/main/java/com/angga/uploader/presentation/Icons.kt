@@ -33,3 +33,7 @@ val FlashOffIcon: ImageVector
 val PlusIcon: ImageVector
     @Composable
     get() = ImageVector.vectorResource(id = R.drawable.add)
+
+val RetryIcon: ImageVector
+    @Composable
+    get() = ImageVector.vectorResource(id = R.drawable.retry)
